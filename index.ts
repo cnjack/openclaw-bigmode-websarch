@@ -1,30 +1,63 @@
 import { Type, type Static } from "@sinclair/typebox";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 
-// Plugin configuration schema using TypeBox
-const PluginConfigSchema = Type.Object({
-    enabled: Type.Optional(Type.Boolean({
-        description: "Enable or disable the BigModel web search tool"
-    })),
-    apiKey: Type.Optional(Type.String({
-        description: "BigModel API key for web search"
-    })),
-    defaultSearchEngine: Type.Optional(Type.Union([
-        Type.Literal("search_std"),
-        Type.Literal("search_pro"),
-        Type.Literal("search_pro_sogou"),
-        Type.Literal("search_pro_quark"),
-    ], {
-        description: "Default search engine to use"
-    })),
-    defaultCount: Type.Optional(Type.Number({
-        description: "Default number of results to return",
-        minimum: 1,
-        maximum: 50
-    }))
-});
+// Plugin configuration interface
+interface PluginConfig {
+    enabled?: boolean;
+    apiKey?: string;
+    defaultSearchEngine?: "search_std" | "search_pro" | "search_pro_sogou" | "search_pro_quark";
+    defaultCount?: number;
+}
 
-type PluginConfig = Static<typeof PluginConfigSchema>;
+// Plugin config schema
+const pluginConfigSchema = {
+    parse(value: unknown): PluginConfig {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+            return {};
+        }
+        const cfg = value as Record<string, unknown>;
+        
+        // Validate allowed keys
+        const allowedKeys = ["enabled", "apiKey", "defaultSearchEngine", "defaultCount"];
+        const unknownKeys = Object.keys(cfg).filter(k => !allowedKeys.includes(k));
+        if (unknownKeys.length > 0) {
+            throw new Error(`Unknown config keys: ${unknownKeys.join(", ")}`);
+        }
+        
+        return {
+            enabled: typeof cfg.enabled === "boolean" ? cfg.enabled : undefined,
+            apiKey: typeof cfg.apiKey === "string" ? cfg.apiKey : undefined,
+            defaultSearchEngine:
+                cfg.defaultSearchEngine === "search_std" ||
+                cfg.defaultSearchEngine === "search_pro" ||
+                cfg.defaultSearchEngine === "search_pro_sogou" ||
+                cfg.defaultSearchEngine === "search_pro_quark"
+                    ? cfg.defaultSearchEngine
+                    : undefined,
+            defaultCount:
+                typeof cfg.defaultCount === "number" && 
+                cfg.defaultCount >= 1 && 
+                cfg.defaultCount <= 50
+                    ? cfg.defaultCount
+                    : undefined,
+        };
+    },
+    uiHints: {
+        apiKey: {
+            label: "BigModel API Key",
+            help: "API key from https://bigmodel.cn/usercenter/proj-mgmt/apikeys",
+            sensitive: true,
+        },
+        defaultSearchEngine: {
+            label: "Default Search Engine",
+            help: "Default search engine: search_std (standard), search_pro (advanced), search_pro_sogou (Sogou), search_pro_quark (Quark)",
+        },
+        defaultCount: {
+            label: "Default Result Count",
+            help: "Default number of results to return (1-50)",
+        },
+    },
+};
 
 // BigModel API types
 const SearchEngineEnum = Type.Union([
@@ -196,9 +229,9 @@ const bigmodelWebSearchPlugin = {
     name: "OpenClaw BigModel Web Search",
     description: "Web search tool powered by BigModel AI Web Search API",
     version: "1.0.0",
-    configSchema: PluginConfigSchema,
+    configSchema: pluginConfigSchema,
     register(api: OpenClawPluginApi): void {
-        const pluginConfig = api.pluginConfig as PluginConfig;
+        const pluginConfig = pluginConfigSchema.parse(api.pluginConfig);
 
         api.registerTool({
             name: "web-search",
