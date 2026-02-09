@@ -225,7 +225,7 @@ function formatSearchResults(results: SearchResultItem[]): string {
  * BigModel Web Search plugin for OpenClaw
  */
 const bigmodelWebSearchPlugin = {
-    id: "openclaw-bigmode-search",
+    id: "openclaw-bigmodel-search",
     name: "OpenClaw BigModel Web Search",
     description: "Web search tool powered by BigModel AI Web Search API",
     version: "1.0.0",
