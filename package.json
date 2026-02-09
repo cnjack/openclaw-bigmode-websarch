@@ -1,0 +1,26 @@
+{
+  "name": "openclaw-bigmode-search",
+  "version": "1.0.0",
+  "description": "OpenClaw plugin for BigModel AI web search",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "openclaw",
+    "search",
+    "bigmode",
+    "zai",
+    "web-search"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.29.2",
+  "devDependencies": {
+    "@sinclair/typebox": "^0.34.33",
+    "@types/node": "^25.2.2",
+    "openclaw": "2026.2.6-3",
+    "typescript": "^5.9.3"
+  }
+}
