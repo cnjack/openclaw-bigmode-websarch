@@ -18,8 +18,10 @@
   "author": "Jack",
   "license": "MIT",
   "packageManager": "pnpm@10.29.2",
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.33"
+  },
   "devDependencies": {
-    "@sinclair/typebox": "^0.34.33",
     "@types/node": "^25.2.2",
     "openclaw": "2026.2.6-3",
     "typescript": "^5.9.3"
